@@ -1,5 +1,14 @@
-html,body,#app{
+html,
+body,
+#app {
   height: 100%;
   padding: 0;
   margin: 0;
+}
+i.iconfont {
+  margin-right: 10px;
+}
+.el-submenu__title,
+.el-menu-item {
+  font-size: 13px;
 }
