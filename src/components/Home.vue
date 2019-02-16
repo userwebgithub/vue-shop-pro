@@ -15,17 +15,17 @@
           background-color="#333744"
           text-color="#fff"
           active-text-color="#409EFF"
-          :style="menushow ? 'width:65px' : 'width:200px'"
           :collapse="menushow"
           :unique-opened="true"
           :collapse-transition="false"
+          :router="true"
         >
-          <el-submenu :index="v.id + ''" v-for="(v, k) in menulist" :key="v.id">
+          <el-submenu :index="v.id + ''" v-for="(v, k) in menulist" :key="v.id" :style="menushow ? 'width:65px' : 'width:200px'">
             <template slot="title">
               <i :class="'iconfont'+' '+ iconlist[k]"></i>
               <span>{{v.authName}}</span>
             </template>
-            <el-menu-item :index="vv.id+''" v-for="vv in v.children" :key="vv.id">
+            <el-menu-item :index="vv.path" v-for="vv in v.children" :key="vv.id">
               <i class="el-icon-menu"></i>
               <span>{{vv.authName}}</span>
             </el-menu-item>
