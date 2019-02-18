@@ -28,13 +28,19 @@
       </el-row>
 
       <!-- 添加用户 dialog -->
-      <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
-        <el-form :model="userForm" label-width="100px" class="demo-ruleForm" :rules="rulesUserForm">
+      <el-dialog title="添加用户" :visible.sync="dialogFormVisible" @close="dialogAddClose">
+        <el-form
+          :model="userForm"
+          label-width="100px"
+          class="demo-ruleForm"
+          ref="addFormRef"
+          :rules="rulesUserForm"
+        >
           <el-form-item label="用户名" prop="username">
             <el-input v-model="userForm.username"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input v-model="userForm.password"></el-input>
+            <el-input v-model="userForm.password" type="password"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email">
             <el-input v-model="userForm.email"></el-input>
@@ -159,6 +165,15 @@
 <script>
 export default {
   data() {
+    // 自定义验证手机号码
+    var checkMoblie = (rule, value, callback) => {
+      if (!/^1[356789]\d{9}$/.test(value)) {
+        return callback(new Error('手机号不正确'))
+      }
+      // 通过验证必须callback() 放行
+      callback()
+    }
+
     return {
       userForm: {
         username: '',
@@ -177,6 +192,13 @@ export default {
             type: 'email',
             message: '请输入正确的邮箱地址',
             trigger: ['blur', 'change']
+          }
+        ],
+        moblie: [
+          { required: true, message: '手机号不能为空', trigger: 'blur' },
+          {
+            validator: checkMoblie,
+            trigger: 'blur'
           }
         ]
       },
@@ -204,17 +226,23 @@ export default {
   },
   methods: {
     // 添加用户
-    async dialogForm() {
-      this.dialogFormVisible = false
-      const { data: res } = await this.$http.post('users', this.userForm)
-      if (res.meta.status !== 201) {
-        return this.$message.error('添加用户失败')
-      }
-      this.getUserList()
-      this.$message({
-        message: '添加用户成功',
-        type: 'success'
+    dialogForm() {
+      this.$refs.addFormRef.validate(async valid => {
+        if (valid) {
+          const { data: res } = await this.$http.post('users', this.userForm)
+          if (res.meta.status !== 201) {
+            return this.$message.error('添加用户失败')
+          }
+          this.dialogFormVisible = false
+          this.getUserList()
+          this.$message.success('添加用户成功')
+        }
       })
+    },
+
+    // 添加用户表单清空
+    dialogAddClose() {
+      this.$refs.addFormRef.resetFields()
     },
 
     // 查询用户信息

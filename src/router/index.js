@@ -12,8 +12,11 @@ import Welcome from '@/components/Welcome.vue'
 // 用户管理页面
 import User from '@/components/User.vue'
 
-// 权限管理页面
+// 权限管理角色列表页面
 import Roles from '@/components/Roles.vue'
+
+// 权限管理权限列表页面
+import Rights from '@/components/Rights.vue'
 
 Vue.use(Router)
 
@@ -40,6 +43,10 @@ const router = new Router({
         {
           path: '/roles',
           component: Roles
+        },
+        {
+          path: '/rights',
+          component: Rights
         }
       ]
     }
