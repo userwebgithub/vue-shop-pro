@@ -18,6 +18,15 @@ import Roles from '@/components/Roles.vue'
 // 权限管理权限列表页面
 import Rights from '@/components/Rights.vue'
 
+// 商品列表页
+import Goods from '@/components/Goods.vue'
+
+// 商品分类页
+import Cat from '@/components/Cat.vue'
+
+// 分类参数
+import Param from '@/components/Param.vue'
+
 Vue.use(Router)
 
 const router = new Router({
@@ -47,6 +56,18 @@ const router = new Router({
         {
           path: '/rights',
           component: Rights
+        },
+        {
+          path: '/goods',
+          component: Goods
+        },
+        {
+          path: '/categories',
+          component: Cat
+        },
+        { path: '/params',
+        component: Param
+
         }
       ]
     }

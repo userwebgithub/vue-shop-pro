@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import ElementUI from 'element-ui'
+import tableTree from 'vue-table-with-tree-grid'
 
 // 引入全局css样式
 import './assets/css/global.css'
@@ -20,6 +21,8 @@ axios.interceptors.request.use(config => {
 Vue.prototype.$http = axios
 // 给vue注册element-ui
 Vue.use(ElementUI)
+
+Vue.component('table-tree', tableTree)
 
 Vue.config.productionTip = false
 

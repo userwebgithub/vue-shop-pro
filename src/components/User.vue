@@ -36,6 +36,7 @@
           ref="addFormRef"
           :rules="rulesUserForm"
         >
+          <!-- prop的值和 对应对象属性名要一致，否则自定义获取不到value值 -->
           <el-form-item label="用户名" prop="username">
             <el-input v-model="userForm.username"></el-input>
           </el-form-item>
@@ -56,15 +57,21 @@
       </el-dialog>
 
       <!-- 修改用户信息 -->
-      <el-dialog title="修改用户" :visible.sync="dialogUserForm">
-        <el-form :model="userObj" label-width="100px" class="demo-ruleForm" :rules="rulesUserForm">
+      <el-dialog title="修改用户" :visible.sync="dialogUserForm" @close="closeForm">
+        <el-form
+          :model="userObj"
+          label-width="100px"
+          class="demo-ruleForm"
+          :rules="rulesUpdateForm"
+          ref="updateForm"
+        >
           <el-form-item label="用户名">
             <el-input v-model="userObj.username" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email">
             <el-input v-model="userObj.email"></el-input>
           </el-form-item>
-          <el-form-item label="手机号码">
+          <el-form-item label="手机号码" prop="mobile">
             <el-input v-model="userObj.mobile"></el-input>
           </el-form-item>
         </el-form>
@@ -165,8 +172,8 @@
 <script>
 export default {
   data() {
-    // 自定义验证手机号码
-    var checkMoblie = (rule, value, callback) => {
+    // 自定义验证手机号码 <!-- prop的值和 对应对象属性名要一致，否则自定义获取不到value值 -->
+    const checkMoblie = (rule, value, callback) => {
       if (!/^1[356789]\d{9}$/.test(value)) {
         return callback(new Error('手机号不正确'))
       }
@@ -195,7 +202,22 @@ export default {
           }
         ],
         moblie: [
-          { required: true, message: '手机号不能为空', trigger: 'blur' },
+          {
+            validator: checkMoblie,
+            trigger: 'blur'
+          }
+        ]
+      },
+      rulesUpdateForm: {
+        email: [
+          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+          {
+            type: 'email',
+            message: '请输入正确的邮箱地址',
+            trigger: ['blur', 'change']
+          }
+        ],
+        mobile: [
           {
             validator: checkMoblie,
             trigger: 'blur'
@@ -245,6 +267,11 @@ export default {
       this.$refs.addFormRef.resetFields()
     },
 
+    // 修改用户表单清空
+    closeForm() {
+      this.$refs.updateForm.resetFields()
+    },
+
     // 查询用户信息
     async updateUserData(user) {
       const { data: res } = await this.$http.get(`users/${user}`)
@@ -256,20 +283,25 @@ export default {
     },
 
     // 修改用户信息
-    async dialogUser() {
-      const userid = this.userObj.id
-      const { data: res } = await this.$http.put(
-        `users/${userid}`,
-        this.userObj
-      )
-      if (res.meta.status !== 200) {
-        return this.$message.error('修改用户信息失败')
-      }
-      this.dialogUserForm = false
-      this.getUserList()
-      this.$message({
-        message: '修改用户信息成功',
-        type: 'success'
+    dialogUser() {
+      this.$refs.updateForm.validate(async valid => {
+        console.log(this.userObj.mobile)
+        if (valid) {
+          const userid = this.userObj.id
+          const { data: res } = await this.$http.put(
+            `users/${userid}`,
+            this.userObj
+          )
+          if (res.meta.status !== 200) {
+            return this.$message.error('修改用户信息失败')
+          }
+          this.dialogUserForm = false
+          this.getUserList()
+          this.$message({
+            message: '修改用户信息成功',
+            type: 'success'
+          })
+        }
       })
     },
 
@@ -310,6 +342,8 @@ export default {
         id: this.userRole.id,
         rid: this.roleValue
       }
+      if (roleObj.rid === '') return this.$message.error('请选择要分配的角色')
+
       const { data: res } = await this.$http.put(
         `users/${this.userRole.id}/role`,
         roleObj
